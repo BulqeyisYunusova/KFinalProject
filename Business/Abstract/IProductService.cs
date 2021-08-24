@@ -1,6 +1,6 @@
 ﻿using Core.Utilities.Abstract;
 using Entities.Concrete;
-using Entities.Concrete.DTOs;
+using Entities.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

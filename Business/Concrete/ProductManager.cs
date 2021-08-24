@@ -1,4 +1,5 @@
 ﻿using Business.Abstract;
+using Business.BusinessAspects.Autofac;
 using Business.Constants;
 using Business.ValidationRules.FluentValidation;
 using Core.Aspects.Autofac.Validation;
@@ -8,7 +9,7 @@ using Core.Utilities.Business;
 using Core.Utilities.Concrete;
 using DataAccess.Abstract;
 using Entities.Concrete;
-using Entities.Concrete.DTOs;
+using Entities.DTOs;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -29,12 +30,13 @@ namespace Business.Concrete
             _categoryService = categoryService;
         }
 
-        [ValidationAspect(typeof(ProductValidator))]
+       [SecuredOperation("product.add,admin")]
+       [ValidationAspect(typeof(ProductValidator))]
         public IResult Add(Product product)
         {
 
-         IResult result=BusinessRules.Run(CheckIfProductCountOfCategoryCorrect(product.CategoryId), CheckIfProductNameExists(product.ProductName),
-             CheckIfCategoryLimitExceded());
+            IResult result = BusinessRules.Run(CheckIfProductCountOfCategoryCorrect(product.CategoryId), CheckIfProductNameExists(product.ProductName),
+                CheckIfCategoryLimitExceded());
 
             if (result != null)
             {
@@ -45,7 +47,7 @@ namespace Business.Concrete
             return new SuccessResult(Messages.ProductAdded);
        
         }
-
+        [SecuredOperation("admin")]
         public IDataResult<List<Product>> GetAll()
         {
             if (DateTime.Now.Hour == 19)
@@ -85,7 +87,7 @@ namespace Business.Concrete
         {
             //select count(*) from products where categoryId=1
             var result = _productDal.GetAll(p => p.CategoryId == categoryId).Count;
-            if (result >= 10)
+            if (result >= 20)
             {
                 return new ErrorResult(Messages.ProductCountOfCategoryError);
             }
